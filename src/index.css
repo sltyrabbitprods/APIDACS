@@ -8,10 +8,19 @@
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: #f8fafc;
     color: #0f172a;
+    transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), color 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .dark body {

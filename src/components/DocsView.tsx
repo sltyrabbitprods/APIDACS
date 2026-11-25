@@ -71,14 +71,14 @@ export function DocsView({ activeTarget }: { activeTarget: string }) {
             type="button"
             onClick={regenerate}
             disabled={regenerating}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>{regenerating ? 'Syncing...' : 'Regenerate'}</span>
           </button>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
           {files.map((f) => (
             <button
               key={f.name}
@@ -87,7 +87,7 @@ export function DocsView({ activeTarget }: { activeTarget: string }) {
               className={`w-full text-left px-4 py-3 flex items-center justify-between text-xs transition-colors ${
                 selectedName === f.name
                   ? 'bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-slate-100'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300'
               }`}
             >
               <span className="inline-flex items-center gap-2 font-mono truncate">

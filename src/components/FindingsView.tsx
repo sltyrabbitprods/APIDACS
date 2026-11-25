@@ -123,7 +123,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter by file, symbol, or rule..."
-              className="w-full pl-9 pr-3 py-1.5 text-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
+              className="w-full pl-9 pr-3 py-1.5 text-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
             />
           </div>
 
@@ -135,7 +135,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                 onClick={() => setStateFilter(tab)}
                 className={`flex-1 py-1 text-xs font-medium rounded transition-colors whitespace-nowrap ${
                   stateFilter === tab
-                    ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 shadow-xs'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                 }`}
               >
@@ -150,7 +150,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
             No findings match the current filter criteria.
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[680px] overflow-y-auto">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/80 max-h-[680px] overflow-y-auto">
             {filtered.map((f) => {
               const isSelected = f.id === selectedId;
               return (
@@ -161,7 +161,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                   className={`w-full text-left p-4 transition-colors block ${
                     isSelected
                       ? 'bg-slate-100 dark:bg-slate-800'
-                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/60'
+                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 text-xs">
@@ -216,12 +216,12 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
             </div>
 
             {actionError && (
-              <div className="p-3 border border-red-200 dark:border-red-800/80 bg-red-50 dark:bg-red-950/50 rounded-md text-xs text-red-800 dark:text-red-200">
+              <div className="p-3 border border-red-200 dark:border-red-900/70 bg-red-50 dark:bg-red-950/50 rounded-md text-xs text-red-800 dark:text-red-300">
                 {actionError}
               </div>
             )}
             {actionStatus && (
-              <div className="p-3 border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/50 rounded-md text-xs text-emerald-800 dark:text-emerald-200">
+              <div className="p-3 border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50 dark:bg-emerald-950/50 rounded-md text-xs text-emerald-800 dark:text-emerald-300">
                 {actionStatus}
               </div>
             )}
@@ -237,7 +237,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                     'Completed 8-step read-only investigation.',
                   )
                 }
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
               >
                 <FileSearch className="w-3.5 h-3.5" />
                 <span>Re-Investigate</span>
@@ -252,7 +252,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                     'Executed verification and baseline regression check.',
                   )
                 }
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Verify &amp; Check Regressions</span>
@@ -268,7 +268,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                       'Formally closed finding with immutable closure record.',
                     )
                   }
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   <span>Formal Closure</span>
@@ -283,7 +283,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                       'Reopened finding into new investigation cycle.',
                     )
                   }
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-950/50 whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-red-300 dark:border-red-900/70 text-red-700 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-950/40 whitespace-nowrap"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reopen Finding</span>
@@ -296,7 +296,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 01. Investigation &amp; Classification Evidence
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border border-slate-200 dark:border-slate-800 rounded-md p-4 bg-slate-50 dark:bg-slate-950 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border border-slate-200 dark:border-slate-800 rounded-md p-4 bg-slate-50 dark:bg-slate-800/60 text-xs">
                 <div>
                   <div className="text-slate-500 dark:text-slate-400">Classification</div>
                   <div className="mt-0.5 font-mono font-medium text-slate-900 dark:text-slate-100">
@@ -324,7 +324,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
               </div>
 
               {detail.evidence.length > 0 && (
-                <div className="border border-slate-200 dark:border-slate-800 rounded-md divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-md divide-y divide-slate-100 dark:divide-slate-800/80">
                   {detail.evidence.map((ev, idx) => (
                     <div key={idx} className="p-3 text-xs space-y-1">
                       <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-mono">
@@ -342,7 +342,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                 <select
                   value={classificationChoice}
                   onChange={(e) => setClassificationChoice(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+                  className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
                 >
                   {[
                     'CONFIRMED_UNUSED',
@@ -362,7 +362,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                 <select
                   value={dispositionChoice}
                   onChange={(e) => setDispositionChoice(e.target.value)}
-                  className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+                  className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
                 >
                   {[
                     'FIX_REQUIRED',
@@ -392,7 +392,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                       'Updated finding classification and disposition.',
                     )
                   }
-                  className="px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
+                  className="px-3 py-1.5 text-xs font-medium border border-slate-300 dark:border-slate-700 rounded-md text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 whitespace-nowrap"
                 >
                   Save Disposition
                 </button>
@@ -402,7 +402,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                 value={rationaleInput}
                 onChange={(e) => setRationaleInput(e.target.value)}
                 placeholder="Documented rationale for disposition or closure..."
-                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
+                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
               />
             </div>
 
@@ -417,7 +417,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                   value={proposedChanges}
                   onChange={(e) => setProposedChanges(e.target.value)}
                   placeholder="Proposed root-cause repair description..."
-                  className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
+                  className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
                 />
                 <button
                   type="button"
@@ -428,14 +428,14 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                       'Created 15-point remediation plan.',
                     )
                   }
-                  className="px-3 py-1.5 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap shrink-0"
+                  className="px-3 py-1.5 text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap shrink-0"
                 >
                   Create Remediation Plan
                 </button>
               </div>
 
               {detail.plans.map((plan) => (
-                <div key={String(plan.id)} className="border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 rounded-md p-4 space-y-2 text-xs">
+                <div key={String(plan.id)} className="border border-slate-200 dark:border-slate-800 rounded-md p-4 space-y-2 text-xs">
                   <div className="flex items-center justify-between font-mono text-slate-600 dark:text-slate-400">
                     <span>{String(plan.id)} (Rev {String(plan.revision)})</span>
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{String(plan.status)}</span>
@@ -449,7 +449,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                         value={approverName}
                         onChange={(e) => setApproverName(e.target.value)}
                         placeholder="Approver identity"
-                        className="px-2.5 py-1 text-xs bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded"
+                        className="px-2.5 py-1 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded"
                       />
                       <button
                         type="button"
@@ -490,7 +490,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
                   </div>
                 ))}
                 {detail.closures.map((cl) => (
-                  <div key={String(cl.id)} className="p-3 border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/50 rounded-md text-xs space-y-1">
+                  <div key={String(cl.id)} className="p-3 border border-emerald-200 dark:border-emerald-900/70 bg-emerald-50 dark:bg-emerald-950/50 rounded-md text-xs space-y-1">
                     <div className="flex items-center gap-1.5 font-semibold text-emerald-800 dark:text-emerald-300">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Closure Record {String(cl.id)}</span>
@@ -511,7 +511,7 @@ export function FindingsView({ findings, onRefresh }: FindingsViewProps) {
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                 04. Append-Only Audit History
               </h3>
-              <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-md divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-md divide-y divide-slate-100 dark:divide-slate-800/80">
                 {detail.history.map((h) => (
                   <div key={String(h.id)} className="px-3 py-2 text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                     <div>

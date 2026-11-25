@@ -88,7 +88,7 @@ export function OverviewView({
                   onClick={() => onSwitchWorkspace('workspace')}
                   className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap shrink-0 ${
                     overview.activeTarget === 'workspace'
-                      ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 shadow-xs'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                   }`}
                 >
@@ -99,7 +99,7 @@ export function OverviewView({
                   onClick={() => onSwitchWorkspace('demo')}
                   className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap shrink-0 ${
                     overview.activeTarget === 'demo'
-                      ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 shadow-xs'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                   }`}
                 >
@@ -118,7 +118,7 @@ export function OverviewView({
                     onClick={() => onModeChange(m)}
                     className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap shrink-0 ${
                       project.enforcementMode === m
-                        ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950'
+                        ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
                     }`}
                   >
@@ -194,7 +194,7 @@ export function OverviewView({
                   <th className="py-2 text-right">Count</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {Object.entries(stateCounts).map(([state, count]) => (
                   <tr key={state} className="h-9">
                     <td className="font-mono text-xs text-slate-800 dark:text-slate-200">{state}</td>
@@ -227,7 +227,7 @@ export function OverviewView({
                   <th className="py-2 text-right">Count</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {Object.entries(classificationCounts).map(([cls, count]) => (
                   <tr key={cls} className="h-9">
                     <td className="font-mono text-xs text-slate-800 dark:text-slate-200">{cls}</td>
@@ -258,9 +258,9 @@ export function OverviewView({
                 <th className="py-2">Timestamp</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {recentScans.map((s) => (
-                <tr key={s.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                <tr key={s.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                   <td className="pr-4 font-mono text-xs text-slate-800 dark:text-slate-200">{s.id}</td>
                   <td className="pr-4 text-xs text-slate-700 dark:text-slate-300">{s.scan_mode}</td>
                   <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{s.git_branch} / {s.git_revision}</td>

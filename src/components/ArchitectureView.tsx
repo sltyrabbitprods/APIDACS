@@ -108,7 +108,7 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               onClick={() => setSubTab(key)}
               className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap ${
                 subTab === key
-                  ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 shadow-xs'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
@@ -125,7 +125,7 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter symbol or path..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
             />
           </div>
         )}
@@ -145,12 +145,12 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Confidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {variables
                 .filter((v) => !q || v.name.toLowerCase().includes(q) || v.file_path.toLowerCase().includes(q))
                 .slice(0, 150)
                 .map((v) => (
-                  <tr key={v.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                  <tr key={v.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="pr-4 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{v.name}</td>
                     <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{v.file_path}:{v.line}</td>
                     <td
@@ -164,8 +164,8 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                     >
                       {v.lifecycle_stage}
                     </td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{v.readLocations.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{v.logOnlyReads.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-900 dark:text-slate-100">{v.readLocations.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-900 dark:text-slate-100">{v.logOnlyReads.length}</td>
                     <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{v.actual_consumer || 'none'}</td>
                     <td className="font-mono text-xs text-slate-500 dark:text-slate-400">{v.confidence}</td>
                   </tr>
@@ -188,17 +188,17 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Config Param Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {functions
                 .filter((fn) => !q || fn.name.toLowerCase().includes(q) || fn.file_path.toLowerCase().includes(q))
                 .slice(0, 150)
                 .map((fn) => (
-                  <tr key={fn.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                  <tr key={fn.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="pr-4 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{fn.name}</td>
                     <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{fn.file_path}:{fn.line}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.parameters.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.callers.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.callees.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-900 dark:text-slate-100">{fn.parameters.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-900 dark:text-slate-100">{fn.callers.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-900 dark:text-slate-100">{fn.callees.length}</td>
                     <td className="text-xs font-mono">
                       {fn.ignores_config_param ? (
                         <span className="text-red-700 dark:text-red-400 font-semibold">IGNORES CONFIG PARAM</span>
@@ -228,11 +228,11 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                   <th className="py-2">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {features
                   .filter((ft) => !q || ft.name.toLowerCase().includes(q) || ft.file_path.toLowerCase().includes(q))
                   .map((ft) => (
-                    <tr key={ft.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <tr key={ft.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{ft.control_id}</td>
                       <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{ft.file_path}:{ft.line}</td>
                       <td className="pr-4 font-mono text-xs text-slate-700 dark:text-slate-300">{ft.event_handler}</td>
@@ -268,7 +268,7 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Confidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {edges
                 .filter(
                   (e) =>
@@ -279,7 +279,7 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 )
                 .slice(0, 150)
                 .map((e) => (
-                  <tr key={e.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                  <tr key={e.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{e.edge_type}</td>
                     <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{e.source_label}</td>
                     <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{e.target_label}</td>
@@ -309,19 +309,19 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               value={impactTarget}
               onChange={(e) => setImpactTarget(e.target.value)}
               placeholder="Enter file path or symbol name (e.g., audioConfig, registry.ts, runFullScanAndLifecycle)..."
-              className="flex-1 px-3 py-2 text-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
+              className="flex-1 px-3 py-2 text-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-md focus:outline-none focus:border-slate-400 dark:focus:border-slate-500"
             />
             <button
               type="button"
               onClick={runImpact}
-              className="px-4 py-2 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap shrink-0"
+              className="px-4 py-2 text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap shrink-0"
             >
               Analyze Impact
             </button>
           </div>
 
           {impactResult && (
-            <div className="border border-slate-200 dark:border-slate-800 rounded-md p-5 bg-slate-50 dark:bg-slate-950 space-y-3 text-xs">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-md p-5 bg-slate-50 dark:bg-slate-800/60 space-y-3 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
                   Target: {String(impactResult.targetElement)}
@@ -333,13 +333,13 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               <div className="text-slate-700 dark:text-slate-300">{String(impactResult.recommendation)}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div>
-                  <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Upstream Producers</div>
+                  <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">Upstream Producers</div>
                   <pre className="font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                     {(impactResult.upstreamDependencies as string[]).join('\n') || 'None detected'}
                   </pre>
                 </div>
                 <div>
-                  <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Downstream Consumers</div>
+                  <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">Downstream Consumers</div>
                   <pre className="font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                     {(impactResult.downstreamConsumers as string[]).join('\n') || 'None detected'}
                   </pre>

@@ -32,7 +32,7 @@ export function AcceptanceView() {
           type="button"
           onClick={runSuite}
           disabled={running}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 whitespace-nowrap shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 whitespace-nowrap shrink-0"
         >
           <Play className="w-3.5 h-3.5" />
           <span>{running ? 'Executing Suite...' : 'Run Acceptance Suite'}</span>
@@ -74,9 +74,9 @@ export function AcceptanceView() {
                   <th className="py-2 text-right">Time</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
                 {suite.results.map((r) => (
-                  <tr key={r.id} className="h-11 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                  <tr key={r.id} className="h-11 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="pr-4 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">{r.id}</td>
                     <td className="pr-4 whitespace-nowrap">
                       {r.passed ? (

@@ -3,7 +3,6 @@ import {
   CheckSquare,
   FileCode2,
   FolderGit2,
-  MessageSquare,
   Moon,
   Network,
   Package,
@@ -14,14 +13,13 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import { AcceptanceView } from './components/AcceptanceView';
 import { ArchitectureView } from './components/ArchitectureView';
-import { ChatView } from './components/ChatView';
 import { DocsView } from './components/DocsView';
 import { ExecutablesView } from './components/ExecutablesView';
 import { FindingsView } from './components/FindingsView';
 import { OverviewView } from './components/OverviewView';
 import { FindingItem, OverviewPayload } from './types/apidacs';
 
-type NavSection = 'overview' | 'findings' | 'architecture' | 'docs' | 'acceptance' | 'executables' | 'assistant';
+type NavSection = 'overview' | 'findings' | 'architecture' | 'docs' | 'acceptance' | 'executables';
 
 const NAV_ITEMS: Array<{ id: NavSection; label: string; icon: typeof Shield }> = [
   { id: 'overview', label: 'Overview & Gate', icon: Shield },
@@ -29,8 +27,7 @@ const NAV_ITEMS: Array<{ id: NavSection; label: string; icon: typeof Shield }> =
   { id: 'architecture', label: 'Data Flow & Graph', icon: Network },
   { id: 'docs', label: 'Generated Docs', icon: FileCode2 },
   { id: 'acceptance', label: 'Acceptance Suite', icon: CheckSquare },
-  { id: 'executables', label: 'Release & Packages', icon: Package },
-  { id: 'assistant', label: 'Gemini Assistant', icon: MessageSquare },
+  { id: 'executables', label: 'OS Executables', icon: Package },
 ];
 
 export default function App() {
@@ -41,18 +38,27 @@ export default function App() {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = typeof window !== 'undefined' ? window.localStorage.getItem('apidacs-theme') : null;
-    return saved === 'light' ? 'light' : 'dark';
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('apidacs-theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return 'dark';
   });
 
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.style.colorScheme = 'dark';
     } else {
       root.classList.remove('dark');
+      root.style.colorScheme = 'light';
     }
-    window.localStorage.setItem('apidacs-theme', theme);
+    try {
+      localStorage.setItem('apidacs-theme', theme);
+    } catch {
+      // Ignore storage failures in restricted contexts
+    }
   }, [theme]);
 
   const loadData = useCallback(async () => {
@@ -113,7 +119,7 @@ export default function App() {
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* Left Sidebar Navigation */}
       <aside className="w-60 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
-        <div className="h-16 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="h-16 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center">
           <span className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-100 font-display whitespace-nowrap">
             APIDACS
           </span>
@@ -130,7 +136,7 @@ export default function App() {
                 onClick={() => setSection(item.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${
                   active
-                    ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 font-medium'
+                    ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 font-medium'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
@@ -141,33 +147,17 @@ export default function App() {
           })}
         </nav>
 
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-          <button
-            type="button"
-            onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-            className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <span className="inline-flex items-center gap-2">
-              {theme === 'dark' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
-              <span>{theme === 'dark' ? 'Dark Theme' : 'Light Theme'}</span>
-            </span>
-            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-              {theme === 'dark' ? 'Switch' : 'Switch'}
-            </span>
-          </button>
-
-          {overview && (
-            <div className="px-1 text-xs text-slate-500 dark:text-slate-400 space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium truncate">
-                <FolderGit2 className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{overview.project.name}</span>
-              </div>
-              <div className="font-mono text-slate-500 dark:text-slate-400 truncate">
-                {overview.artifacts.hostPlatform.os}/{overview.artifacts.hostPlatform.arch}
-              </div>
+        {overview && (
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+            <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-medium truncate">
+              <FolderGit2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{overview.project.name}</span>
             </div>
-          )}
-        </div>
+            <div className="font-mono text-slate-500 dark:text-slate-400 truncate">
+              {overview.artifacts.hostPlatform.os}/{overview.artifacts.hostPlatform.arch}
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Main Content Area */}
@@ -185,9 +175,28 @@ export default function App() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
+              onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors whitespace-nowrap shrink-0"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Dark</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={handleRunScan}
               disabled={scanning}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 whitespace-nowrap shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 transition-colors whitespace-nowrap shrink-0"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${scanning ? 'animate-spin' : ''}`} />
               <span>{scanning ? 'Scanning...' : 'Run Full Scan'}</span>
@@ -198,7 +207,7 @@ export default function App() {
         {/* Viewport */}
         <main className="flex-1 p-8 max-w-[1440px] w-full mx-auto">
           {error ? (
-            <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800/80 rounded-lg p-6 text-sm text-red-700 dark:text-red-300">
+            <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/70 rounded-lg p-6 text-sm text-red-700 dark:text-red-400">
               {error}
             </div>
           ) : loading || !overview ? (
@@ -228,7 +237,6 @@ export default function App() {
               {section === 'executables' && (
                 <ExecutablesView artifacts={overview.artifacts} onRefresh={loadData} />
               )}
-              {section === 'assistant' && <ChatView />}
             </>
           )}
         </main>
