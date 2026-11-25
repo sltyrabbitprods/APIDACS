@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="APIDACS" Version="1.0.0" Manufacturer="APIDACS" UpgradeCode="6F12D9E4-3F9A-4B27-A612-8D9C5A41F210" Scope="perUser">
+    <MajorUpgrade DowngradeErrorMessage="A newer version of APIDACS is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <!-- Uncomment when assets/icons/icon.ico is added:
+    <Icon Id="AppIcon.ico" SourceFile="..\..\assets\icons\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    -->
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="ProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="APIDACS">
+          <Directory Id="BINDIR" Name="bin" />
+          <Directory Id="CLIDIR" Name="dist-cli" />
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents">
+      <Component Directory="CLIDIR">
+        <File Source="..\..\dist-cli\apidacs.cjs" />
+      </Component>
+      <Component Directory="BINDIR">
+        <File Source="..\..\bin\apidacs.cmd" />
+        <File Source="..\..\bin\integrity.cmd" />
+        <Environment Id="UpdateUserPath" Name="PATH" Value="[BINDIR]" Permanent="no" Part="last" Action="set" System="no" />
+      </Component>
+    </ComponentGroup>
+
+    <Feature Id="MainFeature" Title="APIDACS CLI &amp; Integrity Engine" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+</Wix>

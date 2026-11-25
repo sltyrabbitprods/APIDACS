@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=APIDACS Integrity Console
+Comment=Automated Project Integrity, Dependency Tracking & Finding Lifecycle
+Exec=apidacs serve --port 3400
+Terminal=true
+Categories=Development;Utility;
+Icon=apidacs

@@ -1,0 +1,6 @@
+{
+  "name": "APIDACS Integrity & Lifecycle Engine",
+  "description": "Cross-platform Automated Project Integrity, Dependency Tracking, and Global Finding Lifecycle Console for Windows, macOS, and Linux.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

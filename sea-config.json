@@ -1,0 +1,7 @@
+{
+  "main": "dist-cli/apidacs.cjs",
+  "output": "dist-cli/apidacs.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": false
+}
