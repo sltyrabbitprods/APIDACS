@@ -1,8 +1,17 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import JSZip from 'jszip';
 import { generateCiWorkflowYaml } from './git.js';
 import { ensureDir, getPlatformContext, safeSpawn } from './platform.js';
+import { loadReleaseConfig } from './release-config.js';
+
+export interface ReleaseArtifactItem {
+  filename: string;
+  platform: 'Linux' | 'Windows' | 'macOS' | 'Cross-Platform' | 'Manifest';
+  sizeBytes: number;
+  sha256: string;
+}
 
 export interface CrossPlatformArtifactsInfo {
   cliBundlePath: string;
@@ -23,6 +32,13 @@ export interface CrossPlatformArtifactsInfo {
       linuxPng: boolean;
     };
   };
+  releasePackages: {
+    dirExists: boolean;
+    version: string;
+    artifacts: ReleaseArtifactItem[];
+    sha256SumsExists: boolean;
+    releaseNotesExists: boolean;
+  };
   hostPlatform: ReturnType<typeof getPlatformContext>;
   targets: Array<{
     os: 'Windows' | 'macOS' | 'Linux';
@@ -34,8 +50,31 @@ export interface CrossPlatformArtifactsInfo {
   }>;
 }
 
+function detectArtifactPlatform(filename: string): ReleaseArtifactItem['platform'] {
+  if (filename === 'SHA256SUMS.txt' || filename === 'RELEASE_NOTES.md') return 'Manifest';
+  if (filename.includes('windows') || filename.endsWith('.exe') || filename.endsWith('.msi')) return 'Windows';
+  if (filename.includes('macos') || filename.endsWith('.pkg')) return 'macOS';
+  if (filename.includes('linux') || filename.endsWith('.deb') || filename.endsWith('.tar.gz')) return 'Linux';
+  return 'Cross-Platform';
+}
+
+function readSha256Sums(releaseDir: string): Record<string, string> {
+  const sumsPath = path.join(releaseDir, 'SHA256SUMS.txt');
+  const map: Record<string, string> = {};
+  if (!fs.existsSync(sumsPath)) return map;
+  const lines = fs.readFileSync(sumsPath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const match = /^([a-f0-9]{64})\s+(.+)$/.exec(line.trim());
+    if (match) {
+      map[match[2]] = match[1];
+    }
+  }
+  return map;
+}
+
 export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatformArtifactsInfo {
   const absRoot = path.resolve(workspaceRoot);
+  const cfg = loadReleaseConfig(absRoot);
   const cliBundlePath = path.join(absRoot, 'dist-cli', 'apidacs.cjs');
   const cliExists = fs.existsSync(cliBundlePath);
   const cliSize = cliExists ? fs.statSync(cliBundlePath).size : 0;
@@ -58,10 +97,14 @@ export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatf
   let debPackageName: string | null = null;
   let debPackageSizeBytes = 0;
   if (fs.existsSync(installerDir)) {
-    const debFile = fs.readdirSync(installerDir).find((f) => f.endsWith('.deb'));
-    if (debFile) {
-      debPackageName = debFile;
-      debPackageSizeBytes = fs.statSync(path.join(installerDir, debFile)).size;
+    const debFiles = fs
+      .readdirSync(installerDir)
+      .filter((f) => f.endsWith('.deb') && !f.endsWith('.tmp'))
+      .sort()
+      .reverse();
+    if (debFiles[0]) {
+      debPackageName = debFiles[0];
+      debPackageSizeBytes = fs.statSync(path.join(installerDir, debFiles[0])).size;
     }
   }
 
@@ -71,6 +114,29 @@ export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatf
     macosIcns: fs.existsSync(path.join(iconsDir, 'icon.icns')),
     linuxPng: fs.existsSync(path.join(iconsDir, 'icon.png')),
   };
+
+  const releaseDir = path.join(absRoot, 'dist-release');
+  const releaseDirExists = fs.existsSync(releaseDir);
+  const shaMap = releaseDirExists ? readSha256Sums(releaseDir) : {};
+  const releaseArtifacts: ReleaseArtifactItem[] = [];
+  if (releaseDirExists) {
+    for (const filename of fs.readdirSync(releaseDir).sort()) {
+      if (filename.startsWith('.') || filename.endsWith('.tmp')) continue;
+      const full = path.join(releaseDir, filename);
+      const stat = fs.statSync(full);
+      if (!stat.isFile()) continue;
+      let digest = shaMap[filename] || '';
+      if (!digest && filename !== 'SHA256SUMS.txt' && filename !== 'RELEASE_NOTES.md') {
+        digest = crypto.createHash('sha256').update(fs.readFileSync(full)).digest('hex');
+      }
+      releaseArtifacts.push({
+        filename,
+        platform: detectArtifactPlatform(filename),
+        sizeBytes: stat.size,
+        sha256: digest,
+      });
+    }
+  }
 
   return {
     cliBundlePath,
@@ -87,6 +153,13 @@ export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatf
       debPackageSizeBytes,
       iconsPresent,
     },
+    releasePackages: {
+      dirExists: releaseDirExists,
+      version: cfg.version,
+      artifacts: releaseArtifacts,
+      sha256SumsExists: fs.existsSync(path.join(releaseDir, 'SHA256SUMS.txt')),
+      releaseNotesExists: fs.existsSync(path.join(releaseDir, 'RELEASE_NOTES.md')),
+    },
     hostPlatform: getPlatformContext(),
     targets: [
       {
@@ -95,7 +168,7 @@ export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatf
         binaryName: 'install-windows.bat / apidacs.iss / apidacs.wxs',
         launcherCommand: 'installers\\windows\\install-windows.bat',
         seaTarget: 'win32-x64 (Inno Setup .exe / WiX .msi)',
-        status: cliExists ? 'Installer Scripts Ready · Icon Slot Wired' : 'Pending CLI Bundle',
+        status: cliExists ? 'Installer & Release Scripts Ready · Icon Slot Wired' : 'Pending CLI Bundle',
       },
       {
         os: 'macOS',
@@ -110,8 +183,8 @@ export function getCrossPlatformArtifactsInfo(workspaceRoot: string): CrossPlatf
         arch: 'x64 / arm64',
         binaryName: debPackageName ? `dist-installers/${debPackageName}` : 'install-linux.sh',
         launcherCommand: debPackageName ? `sudo dpkg -i dist-installers/${debPackageName}` : 'bash installers/linux/install-linux.sh',
-        seaTarget: 'linux-x64 (.deb + .desktop)',
-        status: debPackageName ? 'Debian .deb Install Package Built' : cliExists ? 'Portable Installer Ready' : 'Pending CLI Bundle',
+        seaTarget: 'linux-x64 (.deb + .tar.gz + .desktop)',
+        status: debPackageName ? 'Debian .deb & Release Tarball Ready' : cliExists ? 'Portable Installer Ready' : 'Pending CLI Bundle',
       },
     ],
   };
@@ -140,9 +213,19 @@ export function buildCliBundleSync(workspaceRoot: string): { ok: boolean; output
 export function buildInstallersSync(workspaceRoot: string): { ok: boolean; error?: string } {
   const absRoot = path.resolve(workspaceRoot);
   const scriptPath = path.join(absRoot, 'scripts', 'build-installers.mjs');
-  const res = safeSpawn(process.execPath, [scriptPath], absRoot, 30000);
+  const res = safeSpawn(process.execPath, [scriptPath], absRoot, 120000);
   if (!res.ok) {
     return { ok: false, error: res.stderr || res.error || 'Failed to build install packages' };
+  }
+  return { ok: true };
+}
+
+export function buildReleasePackagesSync(workspaceRoot: string): { ok: boolean; error?: string } {
+  const absRoot = path.resolve(workspaceRoot);
+  const scriptPath = path.join(absRoot, 'scripts', 'build-release.mjs');
+  const res = safeSpawn(process.execPath, [scriptPath], absRoot, 120000);
+  if (!res.ok) {
+    return { ok: false, error: res.stderr || res.error || 'Failed to build release packages' };
   }
   return { ok: true };
 }
@@ -184,8 +267,9 @@ export async function createDistributionZipBuffer(workspaceRoot: string): Promis
     'assets/icons/icon.png',
     'scripts/build-sea.mjs',
     'scripts/build-installers.mjs',
+    'scripts/build-release.mjs',
     'sea-config.json',
-    '.github/workflows/build-executables.yml',
+    '.github/workflows/release.yml',
   ];
 
   for (const rel of filesToInclude) {
@@ -250,10 +334,9 @@ chmod +x bin/apidacs bin/integrity
 ./bin/apidacs audit --project /path/to/your-repo
 \`\`\`
 
-## Build a Zero-Dependency Native Binary (Node SEA)
-Run on your target OS (Windows, macOS, or Linux) to compile a standalone native executable (\`.exe\` / Mach-O / ELF) that runs without Node installed:
+## Build Release Packages
 \`\`\`bash
-node scripts/build-sea.mjs
+npm run build:release
 \`\`\`
 `,
   );

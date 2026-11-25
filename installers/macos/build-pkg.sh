@@ -45,16 +45,19 @@ if [ -f "$ROOT_DIR/assets/icons/icon.icns" ]; then
   ICON_KEY="<key>CFBundleIconFile</key><string>icon.icns</string>"
 fi
 
+PKG_VERSION="${APIDACS_VERSION:-1.0.0}"
+PKG_BUNDLE_ID="${APIDACS_BUNDLE_ID:-com.apidacs.integrity}"
+
 cat > "$STAGE_DIR/Applications/APIDACS.app/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key><string>APIDACS</string>
-  <key>CFBundleIdentifier</key><string>com.apidacs.integrity</string>
+  <key>CFBundleIdentifier</key><string>$PKG_BUNDLE_ID</string>
   <key>CFBundleName</key><string>APIDACS</string>
-  <key>CFBundleVersion</key><string>1.0.0</string>
-  <key>CFBundleShortVersionString</key><string>1.0.0</string>
+  <key>CFBundleVersion</key><string>$PKG_VERSION</string>
+  <key>CFBundleShortVersionString</key><string>$PKG_VERSION</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   $ICON_KEY
 </dict>
@@ -62,12 +65,12 @@ cat > "$STAGE_DIR/Applications/APIDACS.app/Contents/Info.plist" <<EOF
 EOF
 
 COMPONENT_PKG="$STAGE_DIR/apidacs-component.pkg"
-FINAL_PKG="$OUT_DIR/APIDACS-1.0.0-macos-$ARCH.pkg"
+FINAL_PKG="$OUT_DIR/APIDACS-${PKG_VERSION}-macos-$ARCH.pkg"
 
 pkgbuild \
   --root "$STAGE_DIR" \
-  --identifier "com.apidacs.integrity" \
-  --version "1.0.0" \
+  --identifier "$PKG_BUNDLE_ID" \
+  --version "$PKG_VERSION" \
   --install-location "/" \
   "$COMPONENT_PKG"
 

@@ -9,15 +9,25 @@ import {
   MandatoryDocName,
   validateDocumentationConsistency,
 } from './src/apidacs/docs.js';
+import {
+  formatGeminiError,
+  GEMINI_CHAT_MODELS,
+  GEMINI_ROLE_PRESETS,
+  GeminiAssistantRoleId,
+  resolveChatModel,
+  streamGeminiChat,
+} from './src/apidacs/gemini-chat.js';
 import { getGitStatus } from './src/apidacs/git.js';
 import { LifecycleEngine } from './src/apidacs/lifecycle.js';
 import {
   buildCliBundleSync,
   buildInstallersSync,
+  buildReleasePackagesSync,
   createDistributionZipBuffer,
   getCrossPlatformArtifactsInfo,
 } from './src/apidacs/packager.js';
 import { ensureDir, resolveContainedPath, stableId } from './src/apidacs/platform.js';
+import { loadReleaseConfig, saveReleaseConfig } from './src/apidacs/release-config.js';
 import { IntegrityRegistry, safeJsonParse } from './src/apidacs/registry.js';
 import { runSelfTestSuite } from './src/apidacs/selftest.js';
 import {
@@ -224,9 +234,10 @@ async function startServer(): Promise<void> {
       return;
     }
     try {
+      const cfg = loadReleaseConfig(WORKSPACE_ROOT);
       withRegistry((reg, _engine, root) => {
         const proj = reg.ensureProject(root);
-        reg.setEnforcementMode(proj.id, mode, 'web-operator');
+        reg.setEnforcementMode(proj.id, mode, cfg.defaultOperator);
       });
       res.json({ ok: true, mode });
     } catch (err) {
@@ -353,7 +364,11 @@ async function startServer(): Promise<void> {
 
   app.post('/api/remediation/:planId/approve', (req, res) => {
     try {
-      const approver = typeof req.body?.approver === 'string' && req.body.approver.trim() ? req.body.approver.trim() : 'lead-engineer';
+      const cfg = loadReleaseConfig(WORKSPACE_ROOT);
+      const approver =
+        typeof req.body?.approver === 'string' && req.body.approver.trim()
+          ? req.body.approver.trim()
+          : cfg.defaultApprover;
       const approvalId = withRegistry((_reg, engine) =>
         engine.approveRemediationPlan(req.params.planId, approver, 'HEAD'),
       );
@@ -661,6 +676,151 @@ async function startServer(): Promise<void> {
     res.setHeader('Content-Type', 'application/vnd.debian.binary-package');
     res.setHeader('Content-Disposition', `attachment; filename="${info.installers.debPackageName}"`);
     res.sendFile(target);
+  });
+
+  app.post('/api/release/build', (_req, res) => {
+    const out = buildReleasePackagesSync(WORKSPACE_ROOT);
+    if (!out.ok) {
+      res.status(500).json({ error: out.error });
+      return;
+    }
+    res.json({ ok: true, info: getCrossPlatformArtifactsInfo(WORKSPACE_ROOT) });
+  });
+
+  app.get('/api/release/download/:filename', (req, res) => {
+    const filename = String(req.params.filename || '');
+    if (!filename || filename.includes('/') || filename.includes('\\') || filename.includes('..') || filename.startsWith('.')) {
+      res.status(400).json({ error: 'Invalid release filename' });
+      return;
+    }
+    const releaseDir = path.join(WORKSPACE_ROOT, 'dist-release');
+    try {
+      const target = resolveContainedPath(releaseDir, filename);
+      if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+        res.status(404).json({ error: 'Release package not found' });
+        return;
+      }
+      if (filename.endsWith('.deb')) {
+        res.setHeader('Content-Type', 'application/vnd.debian.binary-package');
+      } else if (filename.endsWith('.zip')) {
+        res.setHeader('Content-Type', 'application/zip');
+      } else if (filename.endsWith('.tar.gz')) {
+        res.setHeader('Content-Type', 'application/gzip');
+      } else {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      }
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.sendFile(target);
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  app.get('/api/settings/release', (_req, res) => {
+    const config = loadReleaseConfig(WORKSPACE_ROOT);
+    const keyVal = process.env.GEMINI_API_KEY;
+    const geminiApiKeyConfigured = Boolean(keyVal && keyVal !== 'MY_GEMINI_API_KEY');
+    const signingHintMap: Record<string, string> = {
+      UNSIGNED: 'No CI signing secret required for local verification builds.',
+      CI_GPG_SIGNING: 'CI workflow expects GPG_PRIVATE_KEY & GPG_PASSPHRASE in GitHub Actions Secrets.',
+      CI_APPLE_NOTARIZATION: 'CI workflow expects APPLE_DEVELOPER_CERT & APPLE_ID in GitHub Actions Secrets.',
+      CI_AUTHENTICODE: 'CI workflow expects WINDOWS_CERT_PFX & WINDOWS_CERT_PASSWORD in GitHub Actions Secrets.',
+    };
+    res.json({
+      config,
+      integrations: {
+        geminiApiKeyConfigured,
+        ciSigningSecretHint: signingHintMap[config.signingProfile] || signingHintMap.UNSIGNED,
+      },
+    });
+  });
+
+  app.post('/api/settings/release', (req, res) => {
+    try {
+      const updated = saveReleaseConfig(WORKSPACE_ROOT, req.body || {});
+      res.json({ ok: true, config: updated });
+    } catch (err) {
+      res.status(400).json({ error: (err as Error).message });
+    }
+  });
+
+  app.get('/api/chat/meta', (_req, res) => {
+    const keyVal = process.env.GEMINI_API_KEY;
+    res.json({
+      geminiConfigured: Boolean(keyVal && keyVal !== 'MY_GEMINI_API_KEY'),
+      defaultModel: 'gemini-4-hydrogen',
+      models: GEMINI_CHAT_MODELS,
+      roles: GEMINI_ROLE_PRESETS.map((r) => ({
+        id: r.id,
+        label: r.label,
+        description: r.description,
+        recommendedModel: r.recommendedModel,
+      })),
+    });
+  });
+
+  app.post('/api/chat/stream', async (req, res) => {
+    const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
+    if (!message) {
+      res.status(400).json({ error: 'Message text is required' });
+      return;
+    }
+
+    const model = resolveChatModel(req.body?.model);
+    const roleId = (typeof req.body?.roleId === 'string' ? req.body.roleId : 'integrity-architect') as GeminiAssistantRoleId;
+    const history = Array.isArray(req.body?.history) ? req.body.history : [];
+    const includeWorkspaceContext = req.body?.includeWorkspaceContext !== false;
+
+    let workspaceContext = '';
+    if (includeWorkspaceContext) {
+      try {
+        workspaceContext = withRegistry((reg, engine, root) => {
+          const project = reg.ensureProject(root);
+          const compliance = engine.evaluateCompliance(root, false);
+          const findings = engine.getFindingSummaries(project.id);
+          const artifacts = getCrossPlatformArtifactsInfo(WORKSPACE_ROOT);
+          const topFindings = findings
+            .slice(0, 8)
+            .map(
+              (f) =>
+                `- [${f.severity}] ${f.ruleId} (${f.lifecycleState}) @ ${f.filePath}:${f.line} — ${f.message}`,
+            )
+            .join('\n');
+          return [
+            `Project: ${project.name} (${activeTarget})`,
+            `Mode: ${project.enforcementMode} | Compliance: ${compliance.decision} (Exit ${compliance.exitCode})`,
+            `Summary: ${compliance.summary}`,
+            `Metrics: files=${compliance.metrics.totalFiles}, openFindings=${compliance.metrics.openFindings}, cycles=${compliance.metrics.cyclesDetected}, regressions=${compliance.metrics.newRegressions}`,
+            `Release v${artifacts.releasePackages.version} artifacts built: ${artifacts.releasePackages.artifacts.length}`,
+            topFindings ? `Top Findings:\n${topFindings}` : 'No open findings.',
+          ].join('\n');
+        });
+      } catch {
+        workspaceContext = '';
+      }
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+      for await (const delta of streamGeminiChat({
+        model,
+        roleId,
+        history,
+        message,
+        workspaceContext,
+      })) {
+        res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+      }
+      res.write(`data: ${JSON.stringify({ done: true, model })}\n\n`);
+      res.end();
+    } catch (err) {
+      const formatted = formatGeminiError(err);
+      res.write(`data: ${JSON.stringify({ error: formatted.message, status: formatted.status })}\n\n`);
+      res.end();
+    }
   });
 
   if (process.env.NODE_ENV !== 'production') {

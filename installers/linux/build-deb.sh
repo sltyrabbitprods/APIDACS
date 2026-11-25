@@ -50,21 +50,25 @@ if [ -f "$ROOT_DIR/assets/icons/icon.png" ]; then
   cp "$ROOT_DIR/assets/icons/icon.png" "$STAGE_DIR/usr/share/icons/hicolor/512x512/apps/apidacs.png"
 fi
 
+PKG_VERSION="${APIDACS_VERSION:-1.0.0}"
+PKG_MAINTAINER_NAME="${APIDACS_MAINTAINER_NAME:-APIDACS}"
+PKG_MAINTAINER_EMAIL="${APIDACS_MAINTAINER_EMAIL:-maintainers@apidacs.local}"
+
 INSTALLED_KB="$(du -sk "$STAGE_DIR/usr" | awk '{print $1}')"
 cat > "$STAGE_DIR/DEBIAN/control" <<EOF
 Package: apidacs
-Version: 1.0.0
+Version: $PKG_VERSION
 Section: devel
 Priority: optional
 Architecture: $DEB_ARCH
 Installed-Size: $INSTALLED_KB
-Maintainer: APIDACS <maintainers@apidacs.local>
+Maintainer: $PKG_MAINTAINER_NAME <$PKG_MAINTAINER_EMAIL>
 Description: Automated Project Integrity, Dependency Tracking & Finding Lifecycle System
  Cross-platform project integrity scanner, SQLite finding registry,
  AST data-flow analyzer, and compliance enforcement CLI (apidacs / integrity).
 EOF
 
-DEB_OUT="$OUT_DIR/apidacs_1.0.0_${DEB_ARCH}.deb"
+DEB_OUT="$OUT_DIR/apidacs_${PKG_VERSION}_${DEB_ARCH}.deb"
 dpkg-deb -Zgzip --build --root-owner-group "$STAGE_DIR" "$DEB_OUT.tmp"
 mv -f "$DEB_OUT.tmp" "$DEB_OUT"
 echo "Built Debian/Ubuntu install package: $DEB_OUT"

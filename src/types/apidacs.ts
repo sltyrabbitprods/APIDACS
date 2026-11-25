@@ -68,6 +68,18 @@ export interface OverviewPayload {
         linuxPng: boolean;
       };
     };
+    releasePackages: {
+      dirExists: boolean;
+      version: string;
+      artifacts: Array<{
+        filename: string;
+        platform: 'Linux' | 'Windows' | 'macOS' | 'Cross-Platform' | 'Manifest';
+        sizeBytes: number;
+        sha256: string;
+      }>;
+      sha256SumsExists: boolean;
+      releaseNotesExists: boolean;
+    };
     hostPlatform: {
       os: string;
       arch: string;
@@ -83,6 +95,49 @@ export interface OverviewPayload {
       status: string;
     }>;
   };
+}
+
+export type SigningProfile =
+  | 'UNSIGNED'
+  | 'CI_GPG_SIGNING'
+  | 'CI_APPLE_NOTARIZATION'
+  | 'CI_AUTHENTICODE';
+
+export interface ReleaseIdentityConfig {
+  version: string;
+  maintainerName: string;
+  maintainerEmail: string;
+  bundleId: string;
+  repository: string;
+  defaultOperator: string;
+  defaultApprover: string;
+  signingProfile: SigningProfile;
+  updatedAt: string;
+}
+
+export interface ReleaseSettingsPayload {
+  config: ReleaseIdentityConfig;
+  integrations: {
+    geminiApiKeyConfigured: boolean;
+    ciSigningSecretHint: string;
+  };
+}
+
+export interface ChatMetaPayload {
+  geminiConfigured: boolean;
+  defaultModel: 'gemini-4-hydrogen' | 'gemini-3.1-flash-lite' | 'gemini-4-neon' | 'gemini-4-carbon';
+  models: Array<{
+    id: 'gemini-4-hydrogen' | 'gemini-3.1-flash-lite' | 'gemini-4-neon' | 'gemini-4-carbon';
+    label: string;
+    tier: 'Standard' | 'Fast' | 'Paid';
+    bestFor: string;
+  }>;
+  roles: Array<{
+    id: string;
+    label: string;
+    description: string;
+    recommendedModel: 'gemini-4-hydrogen' | 'gemini-3.1-flash-lite' | 'gemini-4-neon' | 'gemini-4-carbon';
+  }>;
 }
 
 export interface FindingItem {

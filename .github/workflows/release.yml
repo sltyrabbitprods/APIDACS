@@ -1,0 +1,65 @@
+name: Release Cross-Platform Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Release semver (e.g. 1.0.0)'
+        required: false
+        default: '1.0.0'
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: apidacs-linux-x64
+            release_glob: dist-release/*
+          - os: windows-latest
+            artifact: apidacs-win-x64.exe
+            release_glob: dist-release/*
+          - os: macos-latest
+            artifact: apidacs-macos-arm64
+            release_glob: dist-release/*
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: node scripts/build-cli.mjs
+      - run: node scripts/build-sea.mjs
+      - name: Build OS Installers & Release Packages
+        run: node scripts/build-release.mjs
+      - name: Smoke test native executable
+        run: ./dist-executables/${{ matrix.artifact }} selftest
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-release
+          path: |
+            dist-executables/${{ matrix.artifact }}
+            dist-installers/*
+            ${{ matrix.release_glob }}
+
+  publish-github-release:
+    needs: build-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*

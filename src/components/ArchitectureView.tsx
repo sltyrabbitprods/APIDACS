@@ -91,8 +91,8 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-slate-200 rounded-lg p-4">
-        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-slate-100 rounded-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-md">
           {(
             [
               ['variables', `Variables (${variables.length})`],
@@ -107,7 +107,9 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               type="button"
               onClick={() => setSubTab(key)}
               className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap ${
-                subTab === key ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                subTab === key
+                  ? 'bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
               {label}
@@ -117,23 +119,23 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
 
         {subTab !== 'impact' && (
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter symbol or path..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-200 rounded-md"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
             />
           </div>
         )}
       </div>
 
       {subTab === 'variables' && (
-        <section className="bg-white border border-slate-200 rounded-lg p-6 overflow-x-auto">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs font-medium text-slate-500">
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                 <th className="py-2 pr-4">Variable</th>
                 <th className="py-2 pr-4">Location</th>
                 <th className="py-2 pr-4">Lifecycle Stage</th>
@@ -143,29 +145,29 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Confidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {variables
                 .filter((v) => !q || v.name.toLowerCase().includes(q) || v.file_path.toLowerCase().includes(q))
                 .slice(0, 150)
                 .map((v) => (
-                  <tr key={v.id} className="h-10 hover:bg-slate-50">
-                    <td className="pr-4 font-mono text-xs font-semibold text-slate-900">{v.name}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-500">{v.file_path}:{v.line}</td>
+                  <tr key={v.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td className="pr-4 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{v.name}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{v.file_path}:{v.line}</td>
                     <td
                       className={`pr-4 font-mono text-xs ${
                         v.lifecycle_stage === 'DISCONNECTED'
-                          ? 'text-red-700 font-semibold'
+                          ? 'text-red-700 dark:text-red-400 font-semibold'
                           : v.lifecycle_stage === 'UNRESOLVED'
-                            ? 'text-amber-700 font-medium'
-                            : 'text-emerald-700'
+                            ? 'text-amber-700 dark:text-amber-400 font-medium'
+                            : 'text-emerald-700 dark:text-emerald-400'
                       }`}
                     >
                       {v.lifecycle_stage}
                     </td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs">{v.readLocations.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs">{v.logOnlyReads.length}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-600">{v.actual_consumer || 'none'}</td>
-                    <td className="font-mono text-xs text-slate-500">{v.confidence}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{v.readLocations.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{v.logOnlyReads.length}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{v.actual_consumer || 'none'}</td>
+                    <td className="font-mono text-xs text-slate-500 dark:text-slate-400">{v.confidence}</td>
                   </tr>
                 ))}
             </tbody>
@@ -174,10 +176,10 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
       )}
 
       {subTab === 'functions' && (
-        <section className="bg-white border border-slate-200 rounded-lg p-6 overflow-x-auto">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs font-medium text-slate-500">
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                 <th className="py-2 pr-4">Function</th>
                 <th className="py-2 pr-4">Location</th>
                 <th className="py-2 pr-4 text-right">Params</th>
@@ -186,22 +188,22 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Config Param Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {functions
                 .filter((fn) => !q || fn.name.toLowerCase().includes(q) || fn.file_path.toLowerCase().includes(q))
                 .slice(0, 150)
                 .map((fn) => (
-                  <tr key={fn.id} className="h-10 hover:bg-slate-50">
-                    <td className="pr-4 font-mono text-xs font-semibold text-slate-900">{fn.name}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-500">{fn.file_path}:{fn.line}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs">{fn.parameters.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs">{fn.callers.length}</td>
-                    <td className="pr-4 text-right font-mono tabular-nums text-xs">{fn.callees.length}</td>
+                  <tr key={fn.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td className="pr-4 font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{fn.name}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{fn.file_path}:{fn.line}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.parameters.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.callers.length}</td>
+                    <td className="pr-4 text-right font-mono tabular-nums text-xs text-slate-800 dark:text-slate-200">{fn.callees.length}</td>
                     <td className="text-xs font-mono">
                       {fn.ignores_config_param ? (
-                        <span className="text-red-700 font-semibold">IGNORES CONFIG PARAM</span>
+                        <span className="text-red-700 dark:text-red-400 font-semibold">IGNORES CONFIG PARAM</span>
                       ) : (
-                        <span className="text-slate-600">Nominal</span>
+                        <span className="text-slate-600 dark:text-slate-400">Nominal</span>
                       )}
                     </td>
                   </tr>
@@ -212,13 +214,13 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
       )}
 
       {subTab === 'features' && (
-        <section className="bg-white border border-slate-200 rounded-lg p-6 overflow-x-auto">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 overflow-x-auto">
           {features.length === 0 ? (
-            <div className="text-sm text-slate-500 py-8 text-center">No interactive UI controls detected in this project.</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center">No interactive UI controls detected in this project.</div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs font-medium text-slate-500">
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                   <th className="py-2 pr-4">Control</th>
                   <th className="py-2 pr-4">Location</th>
                   <th className="py-2 pr-4">Event Handler</th>
@@ -226,22 +228,22 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                   <th className="py-2">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {features
                   .filter((ft) => !q || ft.name.toLowerCase().includes(q) || ft.file_path.toLowerCase().includes(q))
                   .map((ft) => (
-                    <tr key={ft.id} className="h-10 hover:bg-slate-50">
-                      <td className="pr-4 font-mono text-xs text-slate-900">{ft.control_id}</td>
-                      <td className="pr-4 font-mono text-xs text-slate-500">{ft.file_path}:{ft.line}</td>
-                      <td className="pr-4 font-mono text-xs text-slate-700">{ft.event_handler}</td>
-                      <td className="pr-4 font-mono text-xs text-slate-600">{ft.backend_operation || 'Disconnected'}</td>
+                    <tr key={ft.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                      <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{ft.control_id}</td>
+                      <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{ft.file_path}:{ft.line}</td>
+                      <td className="pr-4 font-mono text-xs text-slate-700 dark:text-slate-300">{ft.event_handler}</td>
+                      <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{ft.backend_operation || 'Disconnected'}</td>
                       <td
                         className={`font-mono text-xs font-semibold ${
                           ft.status === 'BROKEN'
-                            ? 'text-red-700'
+                            ? 'text-red-700 dark:text-red-400'
                             : ft.status === 'INTEGRATED' || ft.status === 'VERIFIED'
-                              ? 'text-emerald-700'
-                              : 'text-amber-700'
+                              ? 'text-emerald-700 dark:text-emerald-400'
+                              : 'text-amber-700 dark:text-amber-400'
                         }`}
                       >
                         {ft.status}
@@ -255,10 +257,10 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
       )}
 
       {subTab === 'graph' && (
-        <section className="bg-white border border-slate-200 rounded-lg p-6 overflow-x-auto">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs font-medium text-slate-500">
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
                 <th className="py-2 pr-4">Edge Type</th>
                 <th className="py-2 pr-4">Source Producer</th>
                 <th className="py-2 pr-4">Target Consumer</th>
@@ -266,7 +268,7 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 <th className="py-2">Confidence</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {edges
                 .filter(
                   (e) =>
@@ -277,12 +279,12 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
                 )
                 .slice(0, 150)
                 .map((e) => (
-                  <tr key={e.id} className="h-10 hover:bg-slate-50">
-                    <td className="pr-4 font-mono text-xs text-slate-600">{e.edge_type}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-900">{e.source_label}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-900">{e.target_label}</td>
-                    <td className="pr-4 font-mono text-xs text-slate-500">{e.file_path}:{e.line}</td>
-                    <td className="font-mono text-xs text-slate-600">{e.confidence}</td>
+                  <tr key={e.id} className="h-10 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                    <td className="pr-4 font-mono text-xs text-slate-600 dark:text-slate-400">{e.edge_type}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{e.source_label}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-900 dark:text-slate-100">{e.target_label}</td>
+                    <td className="pr-4 font-mono text-xs text-slate-500 dark:text-slate-400">{e.file_path}:{e.line}</td>
+                    <td className="font-mono text-xs text-slate-600 dark:text-slate-400">{e.confidence}</td>
                   </tr>
                 ))}
             </tbody>
@@ -291,14 +293,14 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
       )}
 
       {subTab === 'impact' && (
-        <section className="bg-white border border-slate-200 rounded-lg p-6 space-y-5">
+        <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 space-y-5">
           <div className="flex items-center gap-2">
-            <GitBranch className="w-4 h-4 text-slate-700" />
-            <h3 className="text-base font-semibold text-slate-900">
+            <GitBranch className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               Pre-Modification Change-Impact Analyzer
             </h3>
           </div>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Evaluate upstream producers, downstream consumers, affected features, and regression risk before renaming, deleting, or altering any symbol or file.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -307,38 +309,38 @@ export function ArchitectureView({ activeTarget }: { activeTarget: string }) {
               value={impactTarget}
               onChange={(e) => setImpactTarget(e.target.value)}
               placeholder="Enter file path or symbol name (e.g., audioConfig, registry.ts, runFullScanAndLifecycle)..."
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-md"
+              className="flex-1 px-3 py-2 text-sm bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md"
             />
             <button
               type="button"
               onClick={runImpact}
-              className="px-4 py-2 text-xs font-medium bg-slate-900 text-white rounded-md hover:bg-slate-800 whitespace-nowrap shrink-0"
+              className="px-4 py-2 text-xs font-medium bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 rounded-md hover:bg-slate-800 dark:hover:bg-white whitespace-nowrap shrink-0"
             >
               Analyze Impact
             </button>
           </div>
 
           {impactResult && (
-            <div className="border border-slate-200 rounded-md p-5 bg-slate-50 space-y-3 text-xs">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-md p-5 bg-slate-50 dark:bg-slate-950 space-y-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-mono font-semibold text-slate-900">
+                <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">
                   Target: {String(impactResult.targetElement)}
                 </span>
-                <span className="font-mono font-semibold text-amber-700">
+                <span className="font-mono font-semibold text-amber-700 dark:text-amber-400">
                   Impact Level: {String(impactResult.severity)}
                 </span>
               </div>
-              <div className="text-slate-700">{String(impactResult.recommendation)}</div>
+              <div className="text-slate-700 dark:text-slate-300">{String(impactResult.recommendation)}</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div>
-                  <div className="font-semibold text-slate-700 mb-1">Upstream Producers</div>
-                  <pre className="font-mono text-slate-600 whitespace-pre-wrap">
+                  <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Upstream Producers</div>
+                  <pre className="font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                     {(impactResult.upstreamDependencies as string[]).join('\n') || 'None detected'}
                   </pre>
                 </div>
                 <div>
-                  <div className="font-semibold text-slate-700 mb-1">Downstream Consumers</div>
-                  <pre className="font-mono text-slate-600 whitespace-pre-wrap">
+                  <div className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Downstream Consumers</div>
+                  <pre className="font-mono text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                     {(impactResult.downstreamConsumers as string[]).join('\n') || 'None detected'}
                   </pre>
                 </div>

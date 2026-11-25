@@ -14,8 +14,9 @@
     "build:cli": "node scripts/build-cli.mjs",
     "build:exe": "node scripts/build-cli.mjs && node scripts/build-sea.mjs",
     "build:pkg": "node scripts/build-installers.mjs",
+    "build:release": "node scripts/build-release.mjs",
     "preview": "vite preview",
-    "clean": "rm -rf dist dist-cli dist-executables dist-installers server.js",
+    "clean": "rm -rf dist dist-cli dist-executables dist-installers dist-release server.js",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

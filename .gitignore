@@ -10,3 +10,4 @@ coverage/
 dist-cli/
 dist-executables/
 dist-installers/
+dist-release/
